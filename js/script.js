@@ -2,23 +2,36 @@
 Treehouse Techdegree:
 FSJS project 2 - List Filter and Pagination
 ******************************************/
-//temporary for loop, adds index numbers to the students' names
-const h3s = document.querySelectorAll('.student-item h3');
 
-for (let x = 0; x < h3s.length;  x++)
-{
-  const studentName = h3s[x].innerHTML + ' [' + parseInt(x) +']';
-  h3s[x].innerHTML = studentName;
-}
-
-// Add variables that store DOM elements you will need to reference and/or manipulate
+// variables that store DOM elements that are used throughout the script
 const studentsArray = document.querySelectorAll('.student-item');
+let totalStudents = studentsArray.length;
+const pagesNeeded = Math.ceil(studentsArray.length/10);
+const pageRange = getPageRange();
 
+// append pages and display only first page
+window.addEventListener('load', ()=>
+{
+  appendPages();
 
-// Create a function to hide all of the items in the list excpet for the ten you want to show
-// Tip: Keep in mind that with a list of 54 studetns, the last page will only display four
-// hides student before studentMin and after studentMax
-const hideStudents = (studentMin, studentMax, pageNumber) =>
+  if (totalStudents >= 10)
+  {
+      hideStudents(0,9);
+  }
+
+  else if ( (totalStudents > 0) && (totalStudents < 10) )
+  {
+      hideStudents(0, totalStudents);
+  }
+
+  else
+  {
+    alert("There are no students");
+  }
+});
+
+// hides students before studentMin and after studentMax
+const hideStudents = (studentMin, studentMax) =>
 {
     hideStudentsHelper(0, studentsArray.length, "block"); // unhides entire array
     hideStudentsHelper(0, studentMin, "none");
@@ -33,11 +46,9 @@ const hideStudentsHelper = (param1, param2, action) =>
     }
 }
 
-// Creates and appends pages as pagination links
-function appendPages()
+// creates and appends pages as pagination links
+const appendPages = () =>
 {
-    const pagesNeeded = Math.ceil(studentsArray.length/10);
-
     if (pagesNeeded < 1)
     {
       alert('No list of students was passed to paginationLinks()');
@@ -69,12 +80,82 @@ function appendPages()
     newDivChild.innerHTML = studentPages;
     const pageDiv = document.querySelector('.page');
     pageDiv.appendChild(newDivChild);
+
+    addFunctionailityToPages();
 }
 
-// temporary function calls
+// adds functionality to the pagination buttons so that they show and hide the correct items
+const addFunctionailityToPages = () =>
+{
+    const studentPages = document.querySelectorAll('.pagination ul li a');
 
-hideStudents(10,15,100);
-appendPages();
+    for (let x = 0; x < studentPages.length; x++)
+    {
+        studentPages[x].addEventListener('click', () =>
+        {
+            // removes 'active' class from all pages,
+            for (let y = 0; y < studentPages.length; y++)
+            {
+                studentPages[y].classList.remove('active');
+            }
 
-// Add functionality to the pagination buttons so that they show and hide the correct items
-// Tip: If you created a function above to show/hide list items, it could be helpful here
+            // adds 'active' class to clicked page,
+            // and calls the hideStudents() function
+            studentPages[x].classList.add('active');
+
+            const studentMin = pageRange[x][0];
+            const studentMax = pageRange[x][1];
+
+            hideStudents(studentMin,studentMax);
+        });
+     }
+}
+
+// returns an array of page ranges
+function getPageRange()
+{
+  // creates array of tuple arrays
+  const pageRangeArray = [];
+  for (let x = 0; x < pagesNeeded; x++)
+  {
+    const tupleArray = [];
+    tupleArray.length = 2;
+    pageRangeArray.push(tupleArray);
+  }
+
+  // fills the array
+  let firstRange;
+  let secondRange;
+
+  for (let x = 0; x < pageRangeArray.length; x++)
+  {
+      // first range
+      if (x === 0) // page = 1
+      {
+        firstRange = 0;
+      }
+
+      else
+      {
+        let previousYPlusOne = pageRangeArray[x-1][1] + 1;
+        firstRange = previousYPlusOne;
+      }
+
+      pageRangeArray[x][0] = firstRange;
+
+      // second range
+      if ((totalStudents - secondRange) < 10 )
+      {
+          secondRange = totalStudents;
+      }
+
+      else
+      {
+          let previousXPlusNine = pageRangeArray[x][0] + 9;
+          secondRange = previousXPlusNine;
+      }
+
+      pageRangeArray[x][1] = secondRange;
+  }
+    return pageRangeArray;
+}
