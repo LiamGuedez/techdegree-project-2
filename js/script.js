@@ -7,7 +7,6 @@ FSJS project 2 - List Filter and Pagination
 const studentsArray = document.querySelectorAll('.student-item');
 let totalStudents = studentsArray.length;
 const pagesNeeded = Math.ceil(studentsArray.length/10);
-const pageRange = getPageRange();
 
 // append pages and display only first page
 window.addEventListener('load', ()=>
@@ -103,8 +102,10 @@ const addFunctionailityToPages = () =>
             // and calls the hideStudents() function
             studentPages[x].classList.add('active');
 
-            const studentMin = pageRange[x][0];
-            const studentMax = pageRange[x][1];
+            const page = x;
+            const pageRange = getPageRange();
+            const studentMin = pageRange[page][0];
+            const studentMax = pageRange[page][1];
 
             hideStudents(studentMin,studentMax);
         });
@@ -112,7 +113,7 @@ const addFunctionailityToPages = () =>
 }
 
 // returns an array of page ranges
-function getPageRange()
+const getPageRange = () =>
 {
   // creates array of tuple arrays
   const pageRangeArray = [];
